@@ -26,6 +26,21 @@ function AppLayout() {
       icon: <PackgeExport />,
       label: "Xuất kho",
     },
+    {
+      key: "/best-seller",
+      icon: <PackgeExport />,
+      label: "Hàng bán chạy",
+    },
+    {
+      key: "/worst-seller",
+      icon: <PackgeExport />,
+      label: "Hàng bán ế",
+    },
+    {
+      key: "/history-update",
+      icon: <PackgeExport />,
+      label: "Lịch sử cập nhật",
+    },
   ];
   return (
     <div className="h-screen w-screen flex flex-row">
@@ -42,7 +57,7 @@ function AppLayout() {
             <Link
               to={item.key}
               key={item.key}
-              className={`flex flex-row px-4 py-3 gap-2 uppercase  hover:text-white rounded-lg ${
+              className={`flex flex-row px-2 py-3 gap-2 uppercase  hover:text-white rounded-lg ${
                 pathname === item.key
                   ? "text-white bg-green-500"
                   : "text-slate-400"
