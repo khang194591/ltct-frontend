@@ -28,7 +28,7 @@ export const WorstSeller = () => {
                             scope="row"
                             className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap"
                         >
-                            1
+                            2
                         </th>
                         <td className="py-4 px-6">20</td>
                         <td className="py-4 px-6">4</td>
