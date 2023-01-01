@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   BuildingWarehouse,
@@ -10,6 +10,7 @@ import {
 
 function AppLayout() {
   const { pathname } = useLocation();
+  const [selected, setSelected] = useState("/" + pathname.split("/")[1] ?? "");
   const items = [
     {
       key: "/",
@@ -42,8 +43,9 @@ function AppLayout() {
             <Link
               to={item.key}
               key={item.key}
+              onClick={() => setSelected(item.key)}
               className={`flex flex-row px-4 py-3 gap-2 uppercase  hover:text-white rounded-lg ${
-                pathname === item.key
+                selected === item.key
                   ? "text-white bg-green-500"
                   : "text-slate-400"
               }`}
