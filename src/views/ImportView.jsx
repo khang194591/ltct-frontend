@@ -1,33 +1,24 @@
 import dayjs from "dayjs";
-import calendar from "dayjs/plugin/calendar";
 import React, { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Box } from "tabler-icons-react";
 import { Spinner } from "../components";
 import { client } from "../services/axios";
 
-dayjs.extend(calendar);
-
-dayjs().calendar(null, {
-  sameDay: "[Hôm nay lúc] H:mm", // The same day ( Today at 2:30 AM )
-  nextDay: "[Ngày mai lúc] h:mm A", // The next day ( Tomorrow at 2:30 AM )
-  nextWeek: "dddd [lúc] h:mm A", // The next week ( Sunday at 2:30 AM )
-  lastDay: "[Hôm qua lúc] h:mm A", // The day before ( Yesterday at 2:30 AM )
-  lastWeek: "dddd [tuần trước] [lúc] h:mm A", // Last week ( Last Monday at 2:30 AM )
-  sameElse: "DD/MM/YYYY", // Everything else ( 17/10/2011 )
-});
-
 function ImportView() {
   const [data, setData] = useState();
   const [error, setError] = useState();
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await client.get("/history/import");
-      console.log(data.data);
-      setData(data.data);
+      const data = await (
+        await client.get(`/import?offset=${(page - 1) * 10}`)
+      ).data;
+      console.log(data);
+      setData(data.filter((item) => item.status !== "PENDING"));
     } catch (error) {
       console.log(error);
       setError(error);
@@ -39,7 +30,7 @@ function ImportView() {
   useEffect(() => {
     fetchData();
     return () => {};
-  }, []);
+  }, [page]);
 
   return loading ? (
     <div className="flex h-full justify-center items-center">
@@ -52,64 +43,94 @@ function ImportView() {
   ) : (
     <div className="p-8">
       <div className="bg-white flex flex-col rounded-lg p-4">
-        <h2 className="text-center font-medium mb-4">
-          Danh sách các đơn nhập đã thực hiện
-        </h2>
-        <div className="grid grid-cols-4 border border-slate-300">
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Mã yêu cầu
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Thời gian tạo
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Thời gian duyệt
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Hành động
-          </div>
-          {data.length !== 0 ? (
-            data.map((item) => (
-              <Fragment key={item.historyId}>
-                <div className="px-4 py-3 bg-white border border-slate-300">
-                  {item.historyId}
-                </div>
-                <div className="px-4 py-3 bg-white border border-slate-300">
-                  {dayjs(dayjs(item.createdAt)).calendar(null, {
-                    sameDay: "[Hôm nay lúc] H:mm", // The same day ( Today at 2:30 AM )
-                    nextDay: "[Ngày mai lúc] h:mm A", // The next day ( Tomorrow at 2:30 AM )
-                    nextWeek: "dddd [lúc] h:mm A", // The next week ( Sunday at 2:30 AM )
-                    lastDay: "[Hôm qua lúc] h:mm A", // The day before ( Yesterday at 2:30 AM )
-                    lastWeek: "dddd [tuần trước] [lúc] h:mm A", // Last week ( Last Monday at 2:30 AM )
-                    sameElse: "DD/MM/YYYY", // Everything else ( 17/10/2011 )
-                  })}
-                </div>
-                <div className="px-4 py-3 bg-white border border-slate-300">
-                  {dayjs(dayjs(item.updatedAt)).calendar(null, {
-                    sameDay: "[Hôm nay lúc] H:mm", // The same day ( Today at 2:30 AM )
-                    nextDay: "[Ngày mai lúc] h:mm A", // The next day ( Tomorrow at 2:30 AM )
-                    nextWeek: "dddd [lúc] h:mm A", // The next week ( Sunday at 2:30 AM )
-                    lastDay: "[Hôm qua lúc] h:mm A", // The day before ( Yesterday at 2:30 AM )
-                    lastWeek: "dddd [tuần trước] [lúc] h:mm A", // Last week ( Last Monday at 2:30 AM )
-                    sameElse: "DD/MM/YYYY", // Everything else ( 17/10/2011 )
-                  })}
-                </div>
-                <div className="px-4 py-3 bg-white border border-slate-300 flex justify-center items-center">
-                  <Link
-                    to={`/history/${item.historyId}`}
-                    className="font-medium hover:underline"
+        <div className="flex flex-col mb-10">
+          <h2 className="text-center font-medium text-lg mb-4">
+            Danh sách các đơn nhập đã xử lý
+          </h2>
+          <div className="grid grid-cols-5 border border-slate-300">
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Mã yêu cầu
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Thời gian tạo
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Thời gian duyệt
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Trạng thái
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Hành động
+            </div>
+            {data.length !== 0 ? (
+              data.map((item) => (
+                <Fragment key={item.historyId}>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {item.historyId}
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {dayjs(item.createdAt).format("H:mm [ngày] DD/MM/YYYY")}
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {dayjs(item.updatedAt).format("H:mm [ngày] DD/MM/YYYY")}
+                  </div>
+                  <div
+                    className={
+                      "px-4 py-3 bg-white border border-slate-300 text-center "
+                    }
                   >
-                    Xem
-                  </Link>
-                </div>
-              </Fragment>
-            ))
-          ) : (
-            <span className="col-span-full flex flex-col justify-center items-center text-slate-300 p-4 border border-slate-300">
-              <Box className="my-4" size={96} strokeWidth={1} />
-              <p className="text-2xl text-slate-400">Trống</p>
-            </span>
-          )}
+                    <p
+                      className={`w-fit mx-auto p-1 rounded-lg
+                      ${
+                        item.status === "ACCEPTED"
+                          ? "bg-green-300"
+                          : "bg-red-300"
+                      }
+                      `}
+                    >
+                      {item.status}
+                    </p>
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300 flex justify-center items-center">
+                    <Link
+                      to={`/history/${item.historyId}`}
+                      className="font-medium hover:underline"
+                    >
+                      Xem
+                    </Link>
+                  </div>
+                </Fragment>
+              ))
+            ) : (
+              <span className="col-span-full flex flex-col justify-center items-center text-slate-300 p-4 border border-slate-300">
+                <Box className="my-4" size={96} strokeWidth={1} />
+                <p className="text-2xl text-slate-400">Trống</p>
+              </span>
+            )}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              className="px-4 py-3 bg-slate-600 text-white"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+            >
+              Trước
+            </button>
+            <input
+              className="px-4 py-3 bg-slate-300 text-slate-600 border-none focus:outline-none"
+              value={page}
+              disabled
+              type="number"
+            />
+            <button
+              className="px-4 py-3 bg-slate-600 text-white"
+              onClick={() => setPage(page + 1)}
+              disabled={data.length === 0}
+            >
+              Sau
+            </button>
+          </div>
         </div>
       </div>
     </div>

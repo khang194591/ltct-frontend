@@ -5,7 +5,7 @@ import { Box } from "tabler-icons-react";
 import { Spinner } from "../components";
 import { client } from "../services/axios";
 
-function HistoryView() {
+function PackingView() {
   const { historyId } = useParams();
 
   const [data, setData] = useState();
@@ -70,12 +70,9 @@ function HistoryView() {
         <h2 className="text-center font-bold text-xl mb-4 ">
           Danh sách vật phẩm {data.type}
         </h2>
-        <div className="grid grid-cols-6 border border-slate-300">
+        <div className="grid grid-cols-5 border border-slate-300">
           <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
             Mã
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Mã sản phẩm
           </div>
           <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
             Mã vật phẩm
@@ -96,12 +93,9 @@ function HistoryView() {
                   {item.historyItemId}
                 </div>
                 <div className="capitalize px-4 py-3 bg-white border border-slate-300">
-                  {item.item.productId}
-                </div>{" "}
-                <div className="capitalize px-4 py-3 bg-white border border-slate-300">
                   {item.itemId}
                 </div>
-                <div className="capitalize px-4 py-3 bg-white text-green-600 text-lg border border-slate-300">
+                <div className="capitalize px-4 py-3 bg-white border border-slate-300">
                   {item.quantity}
                 </div>
                 <div className="capitalize px-4 py-3 bg-white border border-slate-300">
@@ -135,4 +129,4 @@ function HistoryView() {
   );
 }
 
-export default HistoryView;
+export default PackingView;
