@@ -60,66 +60,62 @@ function DashboardView() {
     </div>
   ) : (
     <div className="p-8">
-      <Chart
-        style={{
-          height: 400,
-          width: 400,
-        }}
-        options={{
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-            title: {
-              display: true,
-              text: "Mặt hàng bán chạy",
-            },
-          },
-        }}
-        type="bar"
-        data={{
-          labels: data.bestSeller.map((item) => item.productId),
-          datasets: [
-            {
-              type: "bar",
-              label: "Số lượng xuất",
-              data: data.bestSeller.map((item) => item.sum),
-              backgroundColor: "rgba(34, 197, 94, 0.5)",
-            },
-          ],
-        }}
-      />
-      <Chart
-        style={{
-          height: 400,
-          width: 400,
-        }}
-        options={{
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-            title: {
-              display: true,
-              text: "Mặt hàng bán ế",
-            },
-          },
-        }}
-        type="bar"
-        data={{
-          labels: data.worstSeller.map((item) => item.productId),
-          datasets: [
-            {
-              type: "bar",
-              label: "Số lượng xuất",
-              data: data.worstSeller.map((item) => item.sum),
-              backgroundColor: "rgba(255, 99, 132, 0.5)",
-            },
-          ],
-        }}
-      />
+      <div className="w-full flex">
+        <div className="w-1/2">
+          <Chart
+            options={{
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                title: {
+                  display: true,
+                  text: "Mặt hàng bán chạy",
+                },
+              },
+            }}
+            type="bar"
+            data={{
+              labels: data.bestSeller.map((item) => item.productId),
+              datasets: [
+                {
+                  type: "bar",
+                  label: "Số lượng xuất",
+                  data: data.bestSeller.map((item) => item.sum),
+                  backgroundColor: "rgba(34, 197, 94, 0.5)",
+                },
+              ],
+            }}
+          />
+        </div>
+        <div className="w-1/2">
+          <Chart
+            options={{
+              plugins: {
+                legend: {
+                  position: "top",
+                },
+                title: {
+                  display: true,
+                  text: "Mặt hàng bán ế",
+                },
+              },
+            }}
+            type="bar"
+            data={{
+              labels: data.worstSeller.map((item) => item.productId),
+              datasets: [
+                {
+                  type: "bar",
+                  label: "Số lượng xuất",
+                  data: data.worstSeller.map((item) => item.sum),
+                  backgroundColor: "rgba(255, 99, 132, 0.5)",
+                },
+              ],
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

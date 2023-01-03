@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BuildingWarehouse,
   Dashboard,
+  Package,
   PackgeExport,
   PackgeImport,
   User,
@@ -27,6 +28,11 @@ function AppLayout() {
       key: "/export",
       icon: <PackgeExport />,
       label: "Xuất kho",
+    },
+    {
+      key: "/packing",
+      icon: <Package />,
+      label: "Đóng gói",
     },
   ];
   return (

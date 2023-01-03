@@ -1,21 +1,41 @@
 import dayjs from "dayjs";
 import React, { Fragment, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Box } from "tabler-icons-react";
 import { Spinner } from "../components";
 import { client } from "../services/axios";
 
 function PackingView() {
-  const { historyId } = useParams();
-
   const [data, setData] = useState();
+  const [page, setPage] = useState(1);
   const [error, setError] = useState();
+  const [packingStatus, setPackingStatus] = useState("PENDING");
   const [loading, setLoading] = useState(true);
+
+  const handleOK = async (historyId) => {
+    setLoading(true);
+    try {
+      console.log(`/export/${historyId}`);
+      const response = await client.post(`/export/${historyId}`);
+      const arr = data.filter((item) => {
+        return item.historyId !== historyId;
+      });
+      console.log(response.data);
+      setData(arr);
+    } catch (error) {
+      console.log(error);
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await client.get(`/history/${historyId}`);
+      const data = await client.get(
+        `/export?packingStatus=${packingStatus}&offset=${(page - 1) * 10}`
+      );
       console.log(data.data);
       setData(data.data);
     } catch (error) {
@@ -29,7 +49,7 @@ function PackingView() {
   useEffect(() => {
     fetchData();
     return () => {};
-  }, []);
+  }, [page, packingStatus]);
 
   return loading ? (
     <div className="flex h-full justify-center items-center">
@@ -41,88 +61,116 @@ function PackingView() {
     </div>
   ) : (
     <div className="p-8">
-      <div className="bg-white flex flex-col rounded-lg p-4">
-        <h2 className="text-center font-medium text-2xl mb-4">
-          Thông tin đơn yêu cầu <i>{historyId}</i>
-        </h2>
-        <div className="flex flex-row justify-between px-6">
-          <div>
-            <h3 className="">
-              <b>Loại yêu cầu: </b>
-              {data.type}
-            </h3>
-            <h3 className="">
-              <b>Trạng thái: </b>
-              {data.status}
-            </h3>
-          </div>
-          <div>
-            <h3 className="">
-              <b>Ngày tạo: </b>
-              {dayjs(dayjs(data.createdAt)).format("H:mm ngày DD/MM/YYYY")}
-            </h3>
-            <h3 className="">
-              <b>Ngày xử lý: </b>
-              {dayjs(dayjs(data.updatedAt)).format("H:mm ngày DD/MM/YYYY")}
-            </h3>
-          </div>
-        </div>
-        <h2 className="text-center font-bold text-xl mb-4 ">
-          Danh sách vật phẩm {data.type}
-        </h2>
-        <div className="grid grid-cols-5 border border-slate-300">
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Mã
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Mã vật phẩm
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Số lượng
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Trạng thái hàng
-          </div>
-          <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
-            Hành động
-          </div>
-          {data.length !== 0 ? (
-            data.HistoryItem.map((item) => (
-              <Fragment key={item.histoyItemId}>
-                <div className="px-4 py-3 bg-white border border-slate-300">
-                  {item.historyItemId}
-                </div>
-                <div className="capitalize px-4 py-3 bg-white border border-slate-300">
-                  {item.itemId}
-                </div>
-                <div className="capitalize px-4 py-3 bg-white border border-slate-300">
-                  {item.quantity}
-                </div>
-                <div className="capitalize px-4 py-3 bg-white border border-slate-300">
-                  <p
-                    className={`w-fit mx-auto p-1 rounded-lg
-                      ${item.status === "GOOD" ? "bg-green-300" : "bg-red-300"}
+      <div>
+        <label htmlFor="">Trạng thái đóng gói: </label>
+        <select
+          className="bg-slate-300"
+          name="packingStatus"
+          id=""
+          value={packingStatus}
+          onChange={(e) => setPackingStatus(e.currentTarget.value)}
+        >
+          <option value="PENDING">Chờ đóng gói</option>
+          <option value="DONE">Đã đóng gói</option>
+        </select>
+      </div>
+      <div className="bg-white flex flex-col rounded-lg p-4 gap-16">
+        <div className="flex flex-col mb-10">
+          <h2 className="text-center font-medium text-lg mb-4">
+            Danh sách các đơn đang đóng gói
+          </h2>
+          <div className="grid grid-cols-5 border border-slate-300">
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Mã yêu cầu
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Thời gian tạo
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Thời gian duyệt
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Trạng thái
+            </div>
+            <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
+              Hành động
+            </div>
+            {data.length !== 0 ? (
+              data.map((item) => (
+                <Fragment key={item.historyId}>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {item.historyId}
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {dayjs(item.createdAt).format("H:mm [ngày] DD/MM/YYYY")}
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300">
+                    {dayjs(item.updatedAt).format("H:mm [ngày] DD/MM/YYYY")}
+                  </div>
+                  <div
+                    className={
+                      "px-4 py-3 bg-white border border-slate-300 text-center "
+                    }
+                  >
+                    <p
+                      className={`w-fit mx-auto p-1 rounded-lg
+                      ${
+                        item.packingStatus === "PENDING"
+                          ? "bg-yellow-300"
+                          : "bg-green-300"
+                      }
                       `}
-                  >
-                    {item.status}
-                  </p>
-                </div>
-                <div className="px-4 py-3 bg-white border border-slate-300 flex justify-center items-center">
-                  <Link
-                    to={`/history/${item.historyId}`}
-                    className="font-medium hover:underline"
-                  >
-                    Xem
-                  </Link>
-                </div>
-              </Fragment>
-            ))
-          ) : (
-            <span className="col-span-full flex flex-col justify-center items-center text-slate-300 p-4 border border-slate-300">
-              <Box className="my-4" size={96} strokeWidth={1} />
-              <p className="text-2xl text-slate-400">Trống</p>
-            </span>
-          )}
+                    >
+                      {item.packingStatus}
+                    </p>
+                  </div>
+                  <div className="px-4 py-3 bg-white border border-slate-300 flex justify-center gap-4 items-center">
+                    <Link
+                      to={`/history/${item.historyId}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      Xem
+                    </Link>
+                    {packingStatus === "PENDING" && (
+                      <button
+                        onClick={() => handleOK(item.historyId)}
+                        className="font-medium text-green-600 hover:underline"
+                      >
+                        Phê duyệt xong
+                      </button>
+                    )}
+                  </div>
+                </Fragment>
+              ))
+            ) : (
+              <span className="col-span-full flex flex-col justify-center items-center text-slate-300 p-4 border border-slate-300">
+                <Box className="my-4" size={96} strokeWidth={1} />
+                <p className="text-2xl text-slate-400">Trống</p>
+              </span>
+            )}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              className="px-4 py-3 bg-slate-600 text-white"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+            >
+              Trước
+            </button>
+            <input
+              className="px-4 py-3 bg-slate-300 text-slate-600 border-none focus:outline-none"
+              value={page}
+              disabled
+              type="number"
+            />
+            <button
+              className="px-4 py-3 bg-slate-600 text-white"
+              onClick={() => setPage(page + 1)}
+              disabled={data.length === 0}
+            >
+              Sau
+            </button>
+          </div>
         </div>
       </div>
     </div>

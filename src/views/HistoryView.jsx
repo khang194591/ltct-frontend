@@ -28,6 +28,7 @@ function HistoryView() {
 
   useEffect(() => {
     fetchData();
+    console.log("Hello");
     return () => {};
   }, []);
 
@@ -54,6 +55,10 @@ function HistoryView() {
             <h3 className="">
               <b>Trạng thái: </b>
               {data.status}
+            </h3>
+            <h3 className="">
+              <b>Trạng thái đóng gói: </b>
+              {data.packingStatus}
             </h3>
           </div>
           <div>

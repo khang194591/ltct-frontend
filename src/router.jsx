@@ -3,8 +3,9 @@ import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import DashboardView from "./views/DashboardView";
 import ExportView from "./views/ExportView";
-import ImportView from "./views/ImportView";
 import HistoryView from "./views/HistoryView";
+import ImportView from "./views/ImportView";
+import PackingView from "./views/PackingView";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: "/export",
         element: <ExportView />,
+      },
+      {
+        path: "/packing",
+        element: <PackingView />,
       },
     ],
   },
