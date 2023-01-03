@@ -1,29 +1,10 @@
-import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-} from "chart.js";
+import { Chart as ChartJS, registerables } from "chart.js";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import { Spinner } from "../components";
 import { client } from "../services/axios";
 
-ChartJS.register(
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  Title
-);
+ChartJS.register(...registerables);
 
 function DashboardView() {
   const [data, setData] = useState();
