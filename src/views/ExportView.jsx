@@ -1,26 +1,23 @@
 import dayjs from "dayjs";
-import "dayjs/locale/vi";
-import calendar from "dayjs/plugin/calendar";
 import React, { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Box } from "tabler-icons-react";
 import { Spinner } from "../components";
 import { client } from "../services/axios";
 
-dayjs.locale("vi");
-dayjs.extend(calendar);
-
 function ExportView() {
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("");
   const [error, setError] = useState();
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
     try {
+      console.log(`/export?status=${status}&offset=${(page - 1) * 10}`);
       const data = await (
-        await client.get(`/export?offset=${(page - 1) * 10}`)
+        await client.get(`/export?status=${status}&offset=${(page - 1) * 10}`)
       ).data;
       console.log(data);
       setData(data.filter((item) => item.status !== "PENDING"));
@@ -35,7 +32,7 @@ function ExportView() {
   useEffect(() => {
     fetchData();
     return () => {};
-  }, [page]);
+  }, [page, status]);
 
   return loading ? (
     <div className="flex h-full justify-center items-center">
@@ -47,10 +44,26 @@ function ExportView() {
     </div>
   ) : (
     <div className="p-8">
+      <div>
+        <label htmlFor="">Trạng thái: </label>
+        <select
+          className="bg-slate-300"
+          name="status"
+          id=""
+          value={status}
+          onChange={(e) => setStatus(e.currentTarget.value)}
+        >
+          <option value="" defaultChecked>
+            Tất cả
+          </option>
+          <option value="ACCEPTED">Đồng ý</option>
+          <option value="REJECTED">Từ chối</option>
+        </select>
+      </div>
       <div className="bg-white flex flex-col rounded-lg p-4">
         <div className="flex flex-col mb-10">
           <h2 className="text-center font-medium text-lg mb-4">
-            Danh sách các đơn nhập đã xử lý
+            Danh sách các đơn xuất đã xử lý
           </h2>
           <div className="grid grid-cols-5 border border-slate-300">
             <div className="px-4 py-3 bg-slate-100 border border-slate-300 text-center">
@@ -75,24 +88,10 @@ function ExportView() {
                     {item.historyId}
                   </div>
                   <div className="px-4 py-3 bg-white border border-slate-300">
-                    {dayjs(dayjs(item.createdAt)).calendar(null, {
-                      sameDay: "H:mm ngày DD/MM/YYYY",
-                      nextDay: "H:mm ngày DD/MM/YYYY",
-                      nextWeek: "H:mm ngày DD/MM/YYYY",
-                      lastDay: "H:mm ngày DD/MM/YYYY",
-                      lastWeek: "H:mm ngày DD/MM/YYYY",
-                      sameElse: "H:mm ngày DD/MM/YYYY",
-                    })}
+                    {dayjs(item.createdAt).format("H:mm [ngày] DD/MM/YYYY")}
                   </div>
                   <div className="px-4 py-3 bg-white border border-slate-300">
-                    {dayjs(dayjs(item.updatedAt)).calendar(null, {
-                      sameDay: "H:mm ngày DD/MM/YYYY",
-                      nextDay: "H:mm ngày DD/MM/YYYY",
-                      nextWeek: "H:mm ngày DD/MM/YYYY",
-                      lastDay: "H:mm ngày DD/MM/YYYY",
-                      lastWeek: "H:mm ngày DD/MM/YYYY",
-                      sameElse: "H:mm ngày DD/MM/YYYY",
-                    })}
+                    {dayjs(item.updatedAt).format("H:mm [ngày] DD/MM/YYYY")}
                   </div>
                   <div
                     className={
